@@ -40,7 +40,6 @@ subroutine kernel_odd_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
         DO j=iymin,iymax
             !DIR$ IVDEP
             do i=ixmin,ixmax
-
                 if(walls(i,j,k)==0)then        
                   !+++++++++- AA pattern pull step++++++++++++
                   g1t0=  f0(i  ,j  ,k  )
@@ -198,11 +197,11 @@ subroutine kernel_odd_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
                   m_e = m_e - s_e*(m_e - (-11.0d0*den+19.0d0*u2)) + (38d0-19d0*s_e)*(fx*ux1+fy*uy1+fz*uz1)                           !m1
                   m_e2 = m_e2 - s_e2*(m_e2 - (mrt_e2_coef1*den + mrt_e2_coef2*u2)) + (-11d0+5.5d0*s_e2)*(fx*ux1+fy*uy1+fz*uz1)                     !m2               
                   m_jx = m_jx + fx                                                                                                   !m3
-                  m_qx = m_qx - s_q*(m_qx - (-0.666666666666666667d0*ux1)) + (-0.666666666666666667d0+0.333333333333333333d0*s_q)*fx !m4
+                  m_qx = m_qx - s_q*(m_qx - (-2.0d0/3.0d0*ux1)) + (-2.0d0/3.0d0+1.0d0/3.0d0*s_q)*fx !m4
                   m_jy = m_jy + fy                                                                                                   !m5
-                  m_qy = m_qy - s_q*(m_qy - (-0.666666666666666667d0*uy1)) + (-0.666666666666666667d0+0.333333333333333333d0*s_q)*fy !m6
+                  m_qy = m_qy - s_q*(m_qy - (-2.0d0/3.0d0*uy1)) + (-2.0d0/3.0d0+1.0d0/3.0d0*s_q)*fy !m6
                   m_jz = m_jz + fz                                                                                                   !m7
-                  m_qz = m_qz - s_q*(m_qz - (-0.666666666666666667d0*uz1)) + (-0.666666666666666667d0+0.333333333333333333d0*s_q)*fz !m8
+                  m_qz = m_qz - s_q*(m_qz - (-2.0d0/3.0d0*uz1)) + (-2.0d0/3.0d0+1.0d0/3.0d0*s_q)*fz !m8
 
                   m_3pxx = m_3pxx - s_nu*(m_3pxx - (3d0*ux1*ux1-u2)) + (2d0-s_nu)*(2d0*fx*ux1-fy*uy1-fz*uz1)                            !m9                  
                   m_3pixx = m_3pixx - s_pi*(m_3pixx - mrt_omega_xx*(3d0*ux1*ux1-u2)) + (1d0-0.5d0*s_pi)*(-2d0*fx*ux1+fy*uy1+fz*uz1)         !m10
@@ -561,11 +560,11 @@ subroutine kernel_even_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
                   m_e = m_e - s_e*(m_e - (-11.0d0*den+19.0d0*u2)) + (38d0-19d0*s_e)*(fx*ux1+fy*uy1+fz*uz1)                           !m1
                   m_e2 = m_e2 - s_e2*(m_e2 - (mrt_e2_coef1*den + mrt_e2_coef2*u2)) + (-11d0+5.5d0*s_e2)*(fx*ux1+fy*uy1+fz*uz1)                     !m2               
                   m_jx = m_jx + fx                                                                                                   !m3
-                  m_qx = m_qx - s_q*(m_qx - (-0.666666666666666667d0*ux1)) + (-0.666666666666666667d0+0.333333333333333333d0*s_q)*fx !m4
+                  m_qx = m_qx - s_q*(m_qx - (-2.0d0/3.0d0*ux1)) + (-2.0d0/3.0d0+1.0d0/3.0d0*s_q)*fx !m4
                   m_jy = m_jy + fy                                                                                                   !m5
-                  m_qy = m_qy - s_q*(m_qy - (-0.666666666666666667d0*uy1)) + (-0.666666666666666667d0+0.333333333333333333d0*s_q)*fy !m6
+                  m_qy = m_qy - s_q*(m_qy - (-2.0d0/3.0d0*uy1)) + (-2.0d0/3.0d0+1.0d0/3.0d0*s_q)*fy !m6
                   m_jz = m_jz + fz                                                                                                   !m7
-                  m_qz = m_qz - s_q*(m_qz - (-0.666666666666666667d0*uz1)) + (-0.666666666666666667d0+0.333333333333333333d0*s_q)*fz !m8
+                  m_qz = m_qz - s_q*(m_qz - (-2.0d0/3.0d0*uz1)) + (-2.0d0/3.0d0+1.0d0/3.0d0*s_q)*fz !m8
 
                   m_3pxx = m_3pxx - s_nu*(m_3pxx - (3d0*ux1*ux1-u2)) + (2d0-s_nu)*(2d0*fx*ux1-fy*uy1-fz*uz1)                            !m9                  
                   m_3pixx = m_3pixx - s_pi*(m_3pixx - mrt_omega_xx*(3d0*ux1*ux1-u2)) + (1d0-0.5d0*s_pi)*(-2d0*fx*ux1+fy*uy1+fz*uz1)         !m10
