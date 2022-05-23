@@ -409,7 +409,7 @@ subroutine compute_macro_vars     ! u,v,w,rho
 
                 !Here "- 0.5fx" is due to that:
                 !The current PDFs are after the even step, which is in the post collision state before streaming.
-                !To use the post collision state PDFs to calculate the velocities, one must substruct the forcing terms applied during 
+                !To use the post collision state PDFs to calculate the velocities, one must substruct the forcing terms applied during
                 !the collision step, thus the formula is u = f...f + 0.5fx - fx = f...f - 0.5fx
                 u(i, j, k) = (ft1 - ft2 + ft7 - ft8 + ft9 - ft10 + ft11 - ft12 + ft13 - ft14 - 0.5d0*fx)*(1 - wall_indicator)
                 v(i, j, k) = (ft3 - ft4 + ft7 + ft8 - ft9 - ft10 + ft15 - ft16 + ft17 - ft18 - 0.5d0*fy)*(1 - wall_indicator)

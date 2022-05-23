@@ -450,28 +450,28 @@ subroutine benchmark
 
     if (id == 0) print *, '----------- Main benchmarking starts -------------------'
     if (id == 0) open (unit=78, file='out1.output/benchmark_time.dat', status='unknown', position='append')
-    
+
     do round = 1, maxRound
-      call system_clock(clock01)
+        call system_clock(clock01)
 #ifdef gpu_profiling
-      call cudaProfilerStart()
+        call cudaProfilerStart()
 #endif
-      do ntime = 1, ntime_max_benchmark
-          call main_iteration_kernel
-      END DO
+        do ntime = 1, ntime_max_benchmark
+            call main_iteration_kernel
+        END DO
 #ifdef gpu_profiling
-      call cudaProfilerStop()
+        call cudaProfilerStop()
 #endif
-      call MPI_Barrier(MPI_COMM_vgrid, ierr)
-      call system_clock(clock02)
-      ntime = ntime - 1
-      ticks = clock02 - clock01
-      t_all = float(ticks)/float(clockrate)
-      if (id == 0) then     
-        write (78, "('Code performance: ', F12.4, ' MFLUPS')") pore_sum*dble(ntime)/(t_all*1000000d0)
-        write (*, "(1X,'Code performance: ', F12.4, ' MFLUPS')")pore_sum*dble(ntime)/(t_all*1000000d0)
-      end if
-    enddo
+        call MPI_Barrier(MPI_COMM_vgrid, ierr)
+        call system_clock(clock02)
+        ntime = ntime - 1
+        ticks = clock02 - clock01
+        t_all = float(ticks)/float(clockrate)
+        if (id == 0) then
+            write (78, "('Code performance: ', F12.4, ' MFLUPS')") pore_sum*dble(ntime)/(t_all*1000000d0)
+            write (*, "(1X,'Code performance: ', F12.4, ' MFLUPS')") pore_sum*dble(ntime)/(t_all*1000000d0)
+        end if
+    end do
     if (id == 0) print *, '----------- Main benchmarking ends ---------------------'
 
     call monitor
