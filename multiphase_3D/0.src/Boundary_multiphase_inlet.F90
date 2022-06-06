@@ -4,98 +4,98 @@
 !============================================================================================================================================================================
 !************************** before odd step kernel *****************************************
 subroutine inlet_bounce_back_velocity_BC_before_odd    !before streaming type BC
-    use Misc_module
-    use Fluid_singlephase
-    use Fluid_multiphase
-    use mpi_variable
-    IMPLICIT NONE
-    integer :: i, j, k
-    real(kind=8) :: tmp1, tmp2
+   use Misc_module
+   use Fluid_singlephase
+   use Fluid_multiphase
+   use mpi_variable
+   IMPLICIT NONE
+   integer :: i, j, k
+   real(kind=8) :: tmp1, tmp2
 
-    if (idz == 0) then
-        !$omp parallel do private(tmp1,tmp2,i)
-        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
-        !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
-        !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
-        !$acc loop collapse(2) device_type(NVIDIA)
-        do j = 1, ny
-            do i = 1, nx
-                if (walls(i, j, k) == 0) then
-                    phi(i, j, 0) = phi_inlet
-                    phi(i, j, -1) = phi(i, j, 0)
-                    phi(i, j, -2) = phi(i, j, 0)
-                    phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
+   if (idz == 0) then
+      !$omp parallel do private(tmp1,tmp2,i)
+      !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
+      !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
+      !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
+      !$acc loop collapse(2) device_type(NVIDIA)
+      do j = 1, ny
+         do i = 1, nx
+            if (walls(i, j, k) == 0) then
+               phi(i, j, 0) = phi_inlet
+               phi(i, j, -1) = phi(i, j, 0)
+               phi(i, j, -2) = phi(i, j, 0)
+               phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
 
-                    !inlet velocity BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    tmp2 = w_in(i, j)*relaxation
-                    tmp1 = tmp2*sa_inject              !fluid 1 injection
-                    tmp2 = tmp2 - tmp1                   !fluid 2 injection
+               !inlet velocity BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               tmp2 = w_in(i, j)*relaxation
+               tmp1 = tmp2*sa_inject              !fluid 1 injection
+               tmp2 = tmp2 - tmp1                   !fluid 2 injection
 
-                    f5(i, j, 0) = (f6(i, j, 1) + 6.0d0*w_equ_1*tmp1)
-                    f11(i - 1, j, 0) = (f14(i, j, 1) + 6.0d0*w_equ_2*tmp1)
-                    f12(i + 1, j, 0) = (f13(i, j, 1) + 6.0d0*w_equ_2*tmp1)
-                    f15(i, j - 1, 0) = (f18(i, j, 1) + 6.0d0*w_equ_2*tmp1)
-                    f16(i, j + 1, 0) = (f17(i, j, 1) + 6.0d0*w_equ_2*tmp1)
+               f5(i, j, 0) = (f6(i, j, 1) + 6.0d0*w_equ_1*tmp1)
+               f11(i - 1, j, 0) = (f14(i, j, 1) + 6.0d0*w_equ_2*tmp1)
+               f12(i + 1, j, 0) = (f13(i, j, 1) + 6.0d0*w_equ_2*tmp1)
+               f15(i, j - 1, 0) = (f18(i, j, 1) + 6.0d0*w_equ_2*tmp1)
+               f16(i, j + 1, 0) = (f17(i, j, 1) + 6.0d0*w_equ_2*tmp1)
 
-                    g5(i, j, 0) = (g6(i, j, 1) + 6.0d0*w_equ_1*tmp2)
-                    g11(i - 1, j, 0) = (g14(i, j, 1) + 6.0d0*w_equ_2*tmp2)
-                    g12(i + 1, j, 0) = (g13(i, j, 1) + 6.0d0*w_equ_2*tmp2)
-                    g15(i, j - 1, 0) = (g18(i, j, 1) + 6.0d0*w_equ_2*tmp2)
-                    g16(i, j + 1, 0) = (g17(i, j, 1) + 6.0d0*w_equ_2*tmp2)
-                end if
-            end do
-        end do
-        !$acc end kernels
-    end if
+               g5(i, j, 0) = (g6(i, j, 1) + 6.0d0*w_equ_1*tmp2)
+               g11(i - 1, j, 0) = (g14(i, j, 1) + 6.0d0*w_equ_2*tmp2)
+               g12(i + 1, j, 0) = (g13(i, j, 1) + 6.0d0*w_equ_2*tmp2)
+               g15(i, j - 1, 0) = (g18(i, j, 1) + 6.0d0*w_equ_2*tmp2)
+               g16(i, j + 1, 0) = (g17(i, j, 1) + 6.0d0*w_equ_2*tmp2)
+            end if
+         end do
+      end do
+      !$acc end kernels
+   end if
 
-    return
+   return
 end subroutine inlet_bounce_back_velocity_BC_before_odd
 
 !************************** after odd step kernel *****************************************
 subroutine inlet_bounce_back_velocity_BC_after_odd   !after streaming type BC
-    use Misc_module
-    use Fluid_singlephase
-    use Fluid_multiphase
-    use mpi_variable
-    IMPLICIT NONE
-    integer :: i, j, k
-    real(kind=8) :: tmp1, tmp2
+   use Misc_module
+   use Fluid_singlephase
+   use Fluid_multiphase
+   use mpi_variable
+   IMPLICIT NONE
+   integer :: i, j, k
+   real(kind=8) :: tmp1, tmp2
 
-    if (idz == 0) then
-        !$omp parallel do private(tmp1,tmp2,i)
-        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
-        !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
-        !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
-        !$acc loop collapse(2) device_type(NVIDIA)
-        do j = 1, ny
-            do i = 1, nx
-                if (walls(i, j, k) == 0) then
-                    phi(i, j, 0) = phi_inlet
-                    phi(i, j, -1) = phi(i, j, 0)
-                    phi(i, j, -2) = phi(i, j, 0)
-                    phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
+   if (idz == 0) then
+      !$omp parallel do private(tmp1,tmp2,i)
+      !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
+      !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
+      !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
+      !$acc loop collapse(2) device_type(NVIDIA)
+      do j = 1, ny
+         do i = 1, nx
+            if (walls(i, j, k) == 0) then
+               phi(i, j, 0) = phi_inlet
+               phi(i, j, -1) = phi(i, j, 0)
+               phi(i, j, -2) = phi(i, j, 0)
+               phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
 
-                    !inlet velocity BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    tmp2 = w_in(i, j)*relaxation
-                    tmp1 = tmp2*sa_inject              !fluid 1 injection
-                    tmp2 = tmp2 - tmp1                   !fluid 2 injection
+               !inlet velocity BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               tmp2 = w_in(i, j)*relaxation
+               tmp1 = tmp2*sa_inject              !fluid 1 injection
+               tmp2 = tmp2 - tmp1                   !fluid 2 injection
 
-                    f6(i, j, 1) = (f5(i, j, 0) + 6.0d0*w_equ_1*tmp1)
-                    f13(i, j, 1) = (f12(i + 1, j, 0) + 6.0d0*w_equ_2*tmp1)
-                    f14(i, j, 1) = (f11(i - 1, j, 0) + 6.0d0*w_equ_2*tmp1)
-                    f17(i, j, 1) = (f16(i, j + 1, 0) + 6.0d0*w_equ_2*tmp1)
-                    f18(i, j, 1) = (f15(i, j - 1, 0) + 6.0d0*w_equ_2*tmp1)
+               f6(i, j, 1) = (f5(i, j, 0) + 6.0d0*w_equ_1*tmp1)
+               f13(i, j, 1) = (f12(i + 1, j, 0) + 6.0d0*w_equ_2*tmp1)
+               f14(i, j, 1) = (f11(i - 1, j, 0) + 6.0d0*w_equ_2*tmp1)
+               f17(i, j, 1) = (f16(i, j + 1, 0) + 6.0d0*w_equ_2*tmp1)
+               f18(i, j, 1) = (f15(i, j - 1, 0) + 6.0d0*w_equ_2*tmp1)
 
-                    g6(i, j, 1) = (g5(i, j, 0) + 6.0d0*w_equ_1*tmp2)
-                    g13(i, j, 1) = (g12(i + 1, j, 0) + 6.0d0*w_equ_2*tmp2)
-                    g14(i, j, 1) = (g11(i - 1, j, 0) + 6.0d0*w_equ_2*tmp2)
-                    g17(i, j, 1) = (g16(i, j + 1, 0) + 6.0d0*w_equ_2*tmp2)
-                    g18(i, j, 1) = (g15(i, j - 1, 0) + 6.0d0*w_equ_2*tmp2)
-                end if
-            end do
-        end do
-        !$acc end kernels
-    end if
+               g6(i, j, 1) = (g5(i, j, 0) + 6.0d0*w_equ_1*tmp2)
+               g13(i, j, 1) = (g12(i + 1, j, 0) + 6.0d0*w_equ_2*tmp2)
+               g14(i, j, 1) = (g11(i - 1, j, 0) + 6.0d0*w_equ_2*tmp2)
+               g17(i, j, 1) = (g16(i, j + 1, 0) + 6.0d0*w_equ_2*tmp2)
+               g18(i, j, 1) = (g15(i, j - 1, 0) + 6.0d0*w_equ_2*tmp2)
+            end if
+         end do
+      end do
+      !$acc end kernels
+   end if
 
 end subroutine inlet_bounce_back_velocity_BC_after_odd
 
@@ -106,183 +106,183 @@ end subroutine inlet_bounce_back_velocity_BC_after_odd
 !==================================================================================================================================================================
 !************************** before odd step kernel *****************************************
 subroutine inlet_Zou_He_pressure_BC_before_odd    !before streaming type BC
-    use Misc_module
-    use Fluid_singlephase
-    use Fluid_multiphase
-    use mpi_variable
-    IMPLICIT NONE
-    integer :: i, j, k
-    real(kind=8) :: tmp1, tmp2, tnx, tny, ux1, uy1, uz1, tmpRho1, tmpRho2
+   use Misc_module
+   use Fluid_singlephase
+   use Fluid_multiphase
+   use mpi_variable
+   IMPLICIT NONE
+   integer :: i, j, k
+   real(kind=8) :: tmp1, tmp2, tnx, tny, ux1, uy1, uz1, tmpRho1, tmpRho2
 
-    if (idz == 0) then
-        !$omp parallel do private(tmp1,tmp2,tnx,tny,i,tmpRho1,tmpRho2)
-        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
-        !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
-        !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
-        !$acc loop collapse(2) device_type(NVIDIA)
-        do j = 1, ny
-            do i = 1, nx
-                if (walls(i, j, k) == 0) then
+   if (idz == 0) then
+      !$omp parallel do private(tmp1,tmp2,tnx,tny,i,tmpRho1,tmpRho2)
+      !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
+      !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
+      !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
+      !$acc loop collapse(2) device_type(NVIDIA)
+      do j = 1, ny
+         do i = 1, nx
+            if (walls(i, j, k) == 0) then
 
-                    phi(i, j, 0) = phi_inlet
-                    phi(i, j, -1) = phi(i, j, 0)
-                    phi(i, j, -2) = phi(i, j, 0)
-                    phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
+               phi(i, j, 0) = phi_inlet
+               phi(i, j, -1) = phi(i, j, 0)
+               phi(i, j, -2) = phi(i, j, 0)
+               phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
 
-                    !inlet pressure BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    !Zou-He pressure BC applied to the bulk PDF
-                    !inlet velocity BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    tmpRho2 = rho_in
-                    tmpRho1 = rho_in*sa_inject              !fluid 1 injection
-                    tmpRho2 = tmpRho2 - tmpRho1                   !fluid 2 injection
+               !inlet pressure BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               !Zou-He pressure BC applied to the bulk PDF
+               !inlet velocity BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               tmpRho2 = rho_in
+               tmpRho1 = rho_in*sa_inject              !fluid 1 injection
+               tmpRho2 = tmpRho2 - tmpRho1                   !fluid 2 injection
 
-                    tmp1 = (tmpRho1 - &
-                            (f0(i, j, 1) + &
-                             f1(i - 1, j, 1) + &
-                             f2(i + 1, j, 1) + &
-                             f3(i, j - 1, 1) + &
-                             f4(i, j + 1, 1) + &
-                             f7(i - 1, j - 1, 1) + &
-                             f8(i + 1, j - 1, 1) + &
-                             f9(i - 1, j + 1, 1) + &
-                             f10(i + 1, j + 1, 1) + 2d0*( &
-                             f6(i, j, 2) + &
-                             f14(i + 1, j, 2) + &
-                             f13(i - 1, j, 2) + &
-                             f18(i, j + 1, 2) + &
-                             f17(i, j - 1, 2))))*relaxation
+               tmp1 = (tmpRho1 - &
+                       (f0(i, j, 1) + &
+                        f1(i - 1, j, 1) + &
+                        f2(i + 1, j, 1) + &
+                        f3(i, j - 1, 1) + &
+                        f4(i, j + 1, 1) + &
+                        f7(i - 1, j - 1, 1) + &
+                        f8(i + 1, j - 1, 1) + &
+                        f9(i - 1, j + 1, 1) + &
+                        f10(i + 1, j + 1, 1) + 2d0*( &
+                        f6(i, j, 2) + &
+                        f14(i + 1, j, 2) + &
+                        f13(i - 1, j, 2) + &
+                        f18(i, j + 1, 2) + &
+                        f17(i, j - 1, 2))))*relaxation
 
-                    tnx = 0.5d0*( &
-                          f1(i - 1, j, 1) + f7(i - 1, j - 1, 1) + f9(i - 1, j + 1, 1) - ( &
-                          f2(i + 1, j, 1) + f8(i + 1, j - 1, 1) + f10(i + 1, j + 1, 1)))
-                    tny = 0.5d0*( &
-                          f3(i, j - 1, 1) + f7(i - 1, j - 1, 1) + f8(i + 1, j - 1, 1) - ( &
-                          f4(i, j + 1, 1) + f10(i + 1, j + 1, 1) + f9(i - 1, j + 1, 1)))
-                    f5(i, j, 0) = (f6(i, j, 2) + 1.0d0/3.0d0*tmp1)
-                    f11(i - 1, j, 0) = (f14(i + 1, j, 2) + 0.166666666666666667d0*tmp1 - tnx)
-                    f12(i + 1, j, 0) = (f13(i - 1, j, 2) + 0.166666666666666667d0*tmp1 + tnx)
-                    f15(i, j - 1, 0) = (f18(i, j + 1, 2) + 0.166666666666666667d0*tmp1 - tny)
-                    f16(i, j + 1, 0) = (f17(i, j - 1, 2) + 0.166666666666666667d0*tmp1 + tny)
+               tnx = 0.5d0*( &
+                     f1(i - 1, j, 1) + f7(i - 1, j - 1, 1) + f9(i - 1, j + 1, 1) - ( &
+                     f2(i + 1, j, 1) + f8(i + 1, j - 1, 1) + f10(i + 1, j + 1, 1)))
+               tny = 0.5d0*( &
+                     f3(i, j - 1, 1) + f7(i - 1, j - 1, 1) + f8(i + 1, j - 1, 1) - ( &
+                     f4(i, j + 1, 1) + f10(i + 1, j + 1, 1) + f9(i - 1, j + 1, 1)))
+               f5(i, j, 0) = (f6(i, j, 2) + 1.0d0/3.0d0*tmp1)
+               f11(i - 1, j, 0) = (f14(i + 1, j, 2) + 0.166666666666666667d0*tmp1 - tnx)
+               f12(i + 1, j, 0) = (f13(i - 1, j, 2) + 0.166666666666666667d0*tmp1 + tnx)
+               f15(i, j - 1, 0) = (f18(i, j + 1, 2) + 0.166666666666666667d0*tmp1 - tny)
+               f16(i, j + 1, 0) = (f17(i, j - 1, 2) + 0.166666666666666667d0*tmp1 + tny)
 
-                    tmp2 = (tmpRho2 - &
-                            (g0(i, j, 1) + &
-                             g1(i - 1, j, 1) + &
-                             g2(i + 1, j, 1) + &
-                             g3(i, j - 1, 1) + &
-                             g4(i, j + 1, 1) + &
-                             g7(i - 1, j - 1, 1) + &
-                             g8(i + 1, j - 1, 1) + &
-                             g9(i - 1, j + 1, 1) + &
-                             g10(i + 1, j + 1, 1) + 2d0*( &
-                             g6(i, j, 2) + &
-                             g14(i + 1, j, 2) + &
-                             g13(i - 1, j, 2) + &
-                             g18(i, j + 1, 2) + &
-                             g17(i, j - 1, 2))))*relaxation
+               tmp2 = (tmpRho2 - &
+                       (g0(i, j, 1) + &
+                        g1(i - 1, j, 1) + &
+                        g2(i + 1, j, 1) + &
+                        g3(i, j - 1, 1) + &
+                        g4(i, j + 1, 1) + &
+                        g7(i - 1, j - 1, 1) + &
+                        g8(i + 1, j - 1, 1) + &
+                        g9(i - 1, j + 1, 1) + &
+                        g10(i + 1, j + 1, 1) + 2d0*( &
+                        g6(i, j, 2) + &
+                        g14(i + 1, j, 2) + &
+                        g13(i - 1, j, 2) + &
+                        g18(i, j + 1, 2) + &
+                        g17(i, j - 1, 2))))*relaxation
 
-                    tnx = 0.5d0*( &
-                          g1(i - 1, j, 1) + g7(i - 1, j - 1, 1) + g9(i - 1, j + 1, 1) - ( &
-                          g2(i + 1, j, 1) + g8(i + 1, j - 1, 1) + g10(i + 1, j + 1, 1)))
-                    tny = 0.5d0*( &
-                          g3(i, j - 1, 1) + g7(i - 1, j - 1, 1) + g8(i + 1, j - 1, 1) - ( &
-                          g4(i, j + 1, 1) + g10(i + 1, j + 1, 1) + g9(i - 1, j + 1, 1)))
-                    g5(i, j, 0) = (g6(i, j, 2) + 1.0d0/3.0d0*tmp2)
-                    g11(i - 1, j, 0) = (g14(i + 1, j, 2) + 0.166666666666666667d0*tmp2 - tnx)
-                    g12(i + 1, j, 0) = (g13(i - 1, j, 2) + 0.166666666666666667d0*tmp2 + tnx)
-                    g15(i, j - 1, 0) = (g18(i, j + 1, 2) + 0.166666666666666667d0*tmp2 - tny)
-                    g16(i, j + 1, 0) = (g17(i, j - 1, 2) + 0.166666666666666667d0*tmp2 + tny)
-                end if
-            end do
-        end do
-        !$acc end kernels
+               tnx = 0.5d0*( &
+                     g1(i - 1, j, 1) + g7(i - 1, j - 1, 1) + g9(i - 1, j + 1, 1) - ( &
+                     g2(i + 1, j, 1) + g8(i + 1, j - 1, 1) + g10(i + 1, j + 1, 1)))
+               tny = 0.5d0*( &
+                     g3(i, j - 1, 1) + g7(i - 1, j - 1, 1) + g8(i + 1, j - 1, 1) - ( &
+                     g4(i, j + 1, 1) + g10(i + 1, j + 1, 1) + g9(i - 1, j + 1, 1)))
+               g5(i, j, 0) = (g6(i, j, 2) + 1.0d0/3.0d0*tmp2)
+               g11(i - 1, j, 0) = (g14(i + 1, j, 2) + 0.166666666666666667d0*tmp2 - tnx)
+               g12(i + 1, j, 0) = (g13(i - 1, j, 2) + 0.166666666666666667d0*tmp2 + tnx)
+               g15(i, j - 1, 0) = (g18(i, j + 1, 2) + 0.166666666666666667d0*tmp2 - tny)
+               g16(i, j + 1, 0) = (g17(i, j - 1, 2) + 0.166666666666666667d0*tmp2 + tny)
+            end if
+         end do
+      end do
+      !$acc end kernels
 
-    end if
+   end if
 
-    return
+   return
 end subroutine inlet_Zou_He_pressure_BC_before_odd
 
 !************************** after odd step kernel *****************************************
 subroutine inlet_Zou_He_pressure_BC_after_odd   !after streaming type BC
-    use Misc_module
-    use Fluid_singlephase
-    use Fluid_multiphase
-    use mpi_variable
-    IMPLICIT NONE
-    integer :: i, j, k
-    real(kind=8) :: tmp1, tmp2, tnx, tny, ux1, uy1, uz1, tmpRho1, tmpRho2
+   use Misc_module
+   use Fluid_singlephase
+   use Fluid_multiphase
+   use mpi_variable
+   IMPLICIT NONE
+   integer :: i, j, k
+   real(kind=8) :: tmp1, tmp2, tnx, tny, ux1, uy1, uz1, tmpRho1, tmpRho2
 
-    if (idz == 0) then
-        !$omp parallel do private(tmp1,tmp2,tnx,tny,i, tmpRho1, tmpRho2)
-        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
-        !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
-        !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
-        !$acc loop collapse(2) device_type(NVIDIA)
-        do j = 1, ny
-            do i = 1, nx
-                if (walls(i, j, k) == 0) then
+   if (idz == 0) then
+      !$omp parallel do private(tmp1,tmp2,tnx,tny,i, tmpRho1, tmpRho2)
+      !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
+      !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,&
+      !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,walls,w_in)
+      !$acc loop collapse(2) device_type(NVIDIA)
+      do j = 1, ny
+         do i = 1, nx
+            if (walls(i, j, k) == 0) then
 
-                    phi(i, j, 0) = phi_inlet
-                    phi(i, j, -1) = phi(i, j, 0)
-                    phi(i, j, -2) = phi(i, j, 0)
-                    phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
+               phi(i, j, 0) = phi_inlet
+               phi(i, j, -1) = phi(i, j, 0)
+               phi(i, j, -2) = phi(i, j, 0)
+               phi(i, j, -3) = phi(i, j, 0)   !overlap_phi = 4
 
-                    !inlet pressure BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    tmpRho2 = rho_in
-                    tmpRho1 = rho_in*sa_inject              !fluid 1 injection
-                    tmpRho2 = tmpRho2 - tmpRho1                   !fluid 2 injection
+               !inlet pressure BC    k=1  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               tmpRho2 = rho_in
+               tmpRho1 = rho_in*sa_inject              !fluid 1 injection
+               tmpRho2 = tmpRho2 - tmpRho1                   !fluid 2 injection
 
-                    tmp1 = (tmpRho1 - ( &
-                            f0(i, j, 1) + &
-                            f2(i, j, 1) + &
-                            f1(i, j, 1) + &
-                            f4(i, j, 1) + &
-                            f3(i, j, 1) + &
-                            f8(i, j, 1) + &
-                            f7(i, j, 1) + &
-                            f10(i, j, 1) + &
-                            f9(i, j, 1) + 2d0*( &
-                            f5(i, j, 1) + &
-                            f11(i, j, 1) + &
-                            f12(i, j, 1) + &
-                            f15(i, j, 1) + &
-                            f16(i, j, 1))))*relaxation
+               tmp1 = (tmpRho1 - ( &
+                       f0(i, j, 1) + &
+                       f2(i, j, 1) + &
+                       f1(i, j, 1) + &
+                       f4(i, j, 1) + &
+                       f3(i, j, 1) + &
+                       f8(i, j, 1) + &
+                       f7(i, j, 1) + &
+                       f10(i, j, 1) + &
+                       f9(i, j, 1) + 2d0*( &
+                       f5(i, j, 1) + &
+                       f11(i, j, 1) + &
+                       f12(i, j, 1) + &
+                       f15(i, j, 1) + &
+                       f16(i, j, 1))))*relaxation
 
-                    tnx = 0.5d0*(f2(i, j, 1) + f8(i, j, 1) + f10(i, j, 1) - (f1(i, j, 1) + f7(i, j, 1) + f9(i, j, 1)))
-                    tny = 0.5d0*(f4(i, j, 1) + f9(i, j, 1) + f10(i, j, 1) - (f3(i, j, 1) + f8(i, j, 1) + f7(i, j, 1)))
-                    f6(i, j, 1) = (f5(i, j, 1) + 1.0d0/3.0d0*tmp1)
-                    f13(i, j, 1) = (f12(i, j, 1) + 0.166666666666666667d0*tmp1 + tnx)
-                    f14(i, j, 1) = (f11(i, j, 1) + 0.166666666666666667d0*tmp1 - tnx)
-                    f17(i, j, 1) = (f16(i, j, 1) + 0.166666666666666667d0*tmp1 + tny)
-                    f18(i, j, 1) = (f15(i, j, 1) + 0.166666666666666667d0*tmp1 - tny)
+               tnx = 0.5d0*(f2(i, j, 1) + f8(i, j, 1) + f10(i, j, 1) - (f1(i, j, 1) + f7(i, j, 1) + f9(i, j, 1)))
+               tny = 0.5d0*(f4(i, j, 1) + f9(i, j, 1) + f10(i, j, 1) - (f3(i, j, 1) + f8(i, j, 1) + f7(i, j, 1)))
+               f6(i, j, 1) = (f5(i, j, 1) + 1.0d0/3.0d0*tmp1)
+               f13(i, j, 1) = (f12(i, j, 1) + 0.166666666666666667d0*tmp1 + tnx)
+               f14(i, j, 1) = (f11(i, j, 1) + 0.166666666666666667d0*tmp1 - tnx)
+               f17(i, j, 1) = (f16(i, j, 1) + 0.166666666666666667d0*tmp1 + tny)
+               f18(i, j, 1) = (f15(i, j, 1) + 0.166666666666666667d0*tmp1 - tny)
 
-                    tmp2 = (tmpRho2 - ( &
-                            g0(i, j, 1) + &
-                            g2(i, j, 1) + &
-                            g1(i, j, 1) + &
-                            g4(i, j, 1) + &
-                            g3(i, j, 1) + &
-                            g8(i, j, 1) + &
-                            g7(i, j, 1) + &
-                            g10(i, j, 1) + &
-                            g9(i, j, 1) + 2d0*( &
-                            g5(i, j, 1) + &
-                            g11(i, j, 1) + &
-                            g12(i, j, 1) + &
-                            g15(i, j, 1) + &
-                            g16(i, j, 1))))*relaxation
+               tmp2 = (tmpRho2 - ( &
+                       g0(i, j, 1) + &
+                       g2(i, j, 1) + &
+                       g1(i, j, 1) + &
+                       g4(i, j, 1) + &
+                       g3(i, j, 1) + &
+                       g8(i, j, 1) + &
+                       g7(i, j, 1) + &
+                       g10(i, j, 1) + &
+                       g9(i, j, 1) + 2d0*( &
+                       g5(i, j, 1) + &
+                       g11(i, j, 1) + &
+                       g12(i, j, 1) + &
+                       g15(i, j, 1) + &
+                       g16(i, j, 1))))*relaxation
 
-                    tnx = 0.5d0*(g2(i, j, 1) + g8(i, j, 1) + g10(i, j, 1) - (g1(i, j, 1) + g7(i, j, 1) + g9(i, j, 1)))
-                    tny = 0.5d0*(g4(i, j, 1) + g9(i, j, 1) + g10(i, j, 1) - (g3(i, j, 1) + g8(i, j, 1) + g7(i, j, 1)))
-                    g6(i, j, 1) = (g5(i, j, 1) + 1.0d0/3.0d0*tmp2)
-                    g13(i, j, 1) = (g12(i, j, 1) + 0.166666666666666667d0*tmp2 + tnx)
-                    g14(i, j, 1) = (g11(i, j, 1) + 0.166666666666666667d0*tmp2 - tnx)
-                    g17(i, j, 1) = (g16(i, j, 1) + 0.166666666666666667d0*tmp2 + tny)
-                    g18(i, j, 1) = (g15(i, j, 1) + 0.166666666666666667d0*tmp2 - tny)
-                end if
-            end do
-        end do
-        !$acc end kernels
+               tnx = 0.5d0*(g2(i, j, 1) + g8(i, j, 1) + g10(i, j, 1) - (g1(i, j, 1) + g7(i, j, 1) + g9(i, j, 1)))
+               tny = 0.5d0*(g4(i, j, 1) + g9(i, j, 1) + g10(i, j, 1) - (g3(i, j, 1) + g8(i, j, 1) + g7(i, j, 1)))
+               g6(i, j, 1) = (g5(i, j, 1) + 1.0d0/3.0d0*tmp2)
+               g13(i, j, 1) = (g12(i, j, 1) + 0.166666666666666667d0*tmp2 + tnx)
+               g14(i, j, 1) = (g11(i, j, 1) + 0.166666666666666667d0*tmp2 - tnx)
+               g17(i, j, 1) = (g16(i, j, 1) + 0.166666666666666667d0*tmp2 + tny)
+               g18(i, j, 1) = (g15(i, j, 1) + 0.166666666666666667d0*tmp2 - tny)
+            end if
+         end do
+      end do
+      !$acc end kernels
 
-    end if
+   end if
 end subroutine inlet_Zou_He_pressure_BC_after_odd
 
