@@ -535,10 +535,10 @@ subroutine read_parameter_multi
 
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ! Boundary conditions
-    if(outlet_BC==1.and.inlet_BC==2)then
-        if(id0==0)print*,'Inlet/outlet boundary condition error: Inlet pressure + outlet convective BC is not supported! Exiting program!'
-        error_signal = 1 
-    endif
+    ! if(outlet_BC==1.and.inlet_BC==2)then
+    !     if(id0==0)print*,'Inlet/outlet boundary condition error: Inlet pressure + outlet convective BC is not supported! Exiting program!'
+    !     error_signal = 1 
+    ! endif
 
     if(error_signal==1)then
         call MPI_Barrier(MPI_COMM_WORLD,ierr)

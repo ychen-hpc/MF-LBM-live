@@ -403,7 +403,8 @@ subroutine main_iteration_kernel
                 call inlet_Zou_He_pressure_BC_before_odd   !pressure inlet bc
             endif
             if(outlet_BC==1)then
-                call outlet_convective_BC_before_odd   !convective outlet bc
+              call get_inlet_flowrate
+              call outlet_convective_BC_before_odd   !convective outlet bc
             elseif(outlet_BC==2)then
                 call outlet_Zou_He_pressure_BC_before_odd   !pressure outlet bc
             endif
@@ -466,6 +467,7 @@ subroutine main_iteration_kernel
                 call inlet_Zou_He_pressure_BC_after_odd   !pressure inlet bc
             endif
             if(outlet_BC==1)then
+                call get_inlet_flowrate
                 call outlet_convective_BC_after_odd   !convective outlet bc
             elseif(outlet_BC==2)then
                 call outlet_Zou_He_pressure_BC_after_odd   !pressure outlet bc

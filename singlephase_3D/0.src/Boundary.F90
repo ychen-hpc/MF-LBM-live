@@ -323,11 +323,11 @@ subroutine outlet_Zou_He_pressure_BC_before_odd    !before streaming type BC
                 tny = 0.5d0*(&
                     f3(i,j-1,nz)+f7(i-1,j-1,nz)+f8(i+1,j-1,nz)-(&
                     f4(i,j+1,nz)+f10(i+1,j+1,nz)+f9(i-1,j+1,nz)))
-                f6(i,j,nz+1)     = (f5(i,j,nz-1)-0.333333333333333333d0*tmp1) * (1d0-wall_indicator)             + f6(i,j,nz+1)*wall_indicator
-                f13(i-1,j,nz+1) = (f12(i+1,j,nz-1)-0.166666666666666667d0*tmp1 - tnx) * (1d0-wall_indicator) + f13(i-1,j,nz+1)*wall_indicator
-                f14(i+1,j,nz+1) = (f11(i-1,j,nz-1)-0.166666666666666667d0*tmp1 + tnx) * (1d0-wall_indicator) + f14(i+1,j,nz+1)*wall_indicator
-                f17(i,j-1,nz+1) = (f16(i,j+1,nz-1)-0.166666666666666667d0*tmp1 - tny) * (1d0-wall_indicator) + f17(i,j-1,nz+1)*wall_indicator
-                f18(i,j+1,nz+1) = (f15(i,j-1,nz-1)-0.166666666666666667d0*tmp1 + tny) * (1d0-wall_indicator) + f18(i,j+1,nz+1)*wall_indicator
+                f6(i,j,nz+1)     = (f5(i,j,nz-1)-0.333333333333333333d0*tmp1) * (1-wall_indicator)             + f6(i,j,nz+1)*wall_indicator
+                f13(i-1,j,nz+1) = (f12(i+1,j,nz-1)-0.166666666666666667d0*tmp1 - tnx) * (1-wall_indicator) + f13(i-1,j,nz+1)*wall_indicator
+                f14(i+1,j,nz+1) = (f11(i-1,j,nz-1)-0.166666666666666667d0*tmp1 + tnx) * (1-wall_indicator) + f14(i+1,j,nz+1)*wall_indicator
+                f17(i,j-1,nz+1) = (f16(i,j+1,nz-1)-0.166666666666666667d0*tmp1 - tny) * (1-wall_indicator) + f17(i,j-1,nz+1)*wall_indicator
+                f18(i,j+1,nz+1) = (f15(i,j-1,nz-1)-0.166666666666666667d0*tmp1 + tny) * (1-wall_indicator) + f18(i,j+1,nz+1)*wall_indicator
             enddo
         enddo
         !$acc end kernels
@@ -376,11 +376,11 @@ subroutine outlet_Zou_He_pressure_BC_after_odd     !after streaming type BC
 
                 tnx = 0.5d0*( f2(i,j,nz)+f8(i,j,nz)+f10(i,j,nz)-(f1(i,j,nz)+f7(i,j,nz)+f9(i,j,nz)) )
                 tny = 0.5d0*( f4(i,j,nz)+f10(i,j,nz)+f9(i,j,nz)-(f3(i,j,nz)+f7(i,j,nz)+f8(i,j,nz)) )
-                f5(i,j,nz) = (f6(i,j,nz)-0.333333333333333333d0*tmp1)* (1d0-wall_indicator)   + f5(i,j,nz)*wall_indicator
-                f11(i,j,nz) = (f14(i,j,nz)-0.166666666666666667d0*tmp1 + tnx)* (1d0-wall_indicator)   + f11(i,j,nz)*wall_indicator
-                f12(i,j,nz) = (f13(i,j,nz)-0.166666666666666667d0*tmp1 - tnx)* (1d0-wall_indicator)   + f12(i,j,nz)*wall_indicator
-                f15(i,j,nz) = (f18(i,j,nz)-0.166666666666666667d0*tmp1 + tny)* (1d0-wall_indicator)   + f15(i,j,nz)*wall_indicator
-                f16(i,j,nz) = (f17(i,j,nz)-0.166666666666666667d0*tmp1 - tny)* (1d0-wall_indicator)   + f16(i,j,nz)*wall_indicator
+                f5(i,j,nz) = (f6(i,j,nz)-0.333333333333333333d0*tmp1)* (1-wall_indicator)   + f5(i,j,nz)*wall_indicator
+                f11(i,j,nz) = (f14(i,j,nz)-0.166666666666666667d0*tmp1 + tnx)* (1-wall_indicator)   + f11(i,j,nz)*wall_indicator
+                f12(i,j,nz) = (f13(i,j,nz)-0.166666666666666667d0*tmp1 - tnx)* (1-wall_indicator)   + f12(i,j,nz)*wall_indicator
+                f15(i,j,nz) = (f18(i,j,nz)-0.166666666666666667d0*tmp1 + tny)* (1-wall_indicator)   + f15(i,j,nz)*wall_indicator
+                f16(i,j,nz) = (f17(i,j,nz)-0.166666666666666667d0*tmp1 - tny)* (1-wall_indicator)   + f16(i,j,nz)*wall_indicator
             enddo
         enddo
         !$acc end kernels

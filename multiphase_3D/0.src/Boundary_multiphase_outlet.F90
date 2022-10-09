@@ -18,7 +18,7 @@ subroutine outlet_convective_BC_before_odd    !before streaming type BC
         !inlet average velocity
         u_convec = uin_avg
         temp = 1d0/(1d0+u_convec)
-
+        !write (*, *)  uin_avg, "gfdsgdfsgdsfgsdf"
         !$omp parallel do private(wall_indicator,i)
         !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
         !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18, &
@@ -201,11 +201,11 @@ subroutine outlet_Zou_He_pressure_BC_before_odd    !before streaming type BC
                 tny = 0.5d0*(&
                     f3(i,j-1,nz)+f7(i-1,j-1,nz)+f8(i+1,j-1,nz)-(&
                     f4(i,j+1,nz)+f10(i+1,j+1,nz)+f9(i-1,j+1,nz)))
-                f6(i,j,nz+1)     = (f5(i,j,nz-1)-0.333333333333333333d0*tmp1) * (1d0-wall_indicator)             + f6(i,j,nz+1)*wall_indicator
-                f13(i-1,j,nz+1) = (f12(i+1,j,nz-1)-0.166666666666666667d0*tmp1 - tnx) * (1d0-wall_indicator) + f13(i-1,j,nz+1)*wall_indicator
-                f14(i+1,j,nz+1) = (f11(i-1,j,nz-1)-0.166666666666666667d0*tmp1 + tnx) * (1d0-wall_indicator) + f14(i+1,j,nz+1)*wall_indicator
-                f17(i,j-1,nz+1) = (f16(i,j+1,nz-1)-0.166666666666666667d0*tmp1 - tny) * (1d0-wall_indicator) + f17(i,j-1,nz+1)*wall_indicator
-                f18(i,j+1,nz+1) = (f15(i,j-1,nz-1)-0.166666666666666667d0*tmp1 + tny) * (1d0-wall_indicator) + f18(i,j+1,nz+1)*wall_indicator
+                f6(i,j,nz+1)     = (f5(i,j,nz-1)-0.333333333333333333d0*tmp1) * (1-wall_indicator)             + f6(i,j,nz+1)*wall_indicator
+                f13(i-1,j,nz+1) = (f12(i+1,j,nz-1)-0.166666666666666667d0*tmp1 - tnx) * (1-wall_indicator) + f13(i-1,j,nz+1)*wall_indicator
+                f14(i+1,j,nz+1) = (f11(i-1,j,nz-1)-0.166666666666666667d0*tmp1 + tnx) * (1-wall_indicator) + f14(i+1,j,nz+1)*wall_indicator
+                f17(i,j-1,nz+1) = (f16(i,j+1,nz-1)-0.166666666666666667d0*tmp1 - tny) * (1-wall_indicator) + f17(i,j-1,nz+1)*wall_indicator
+                f18(i,j+1,nz+1) = (f15(i,j-1,nz-1)-0.166666666666666667d0*tmp1 + tny) * (1-wall_indicator) + f18(i,j+1,nz+1)*wall_indicator
 
                 tnx = 0.5d0*(&
                     g1(i-1,j,nz)+g7(i-1,j-1,nz)+g9(i-1,j+1,nz)-(&
@@ -213,11 +213,11 @@ subroutine outlet_Zou_He_pressure_BC_before_odd    !before streaming type BC
                 tny = 0.5d0*(&
                     g3(i,j-1,nz)+g7(i-1,j-1,nz)+g8(i+1,j-1,nz)-(&
                     g4(i,j+1,nz)+g10(i+1,j+1,nz)+g9(i-1,j+1,nz)))
-                g6(i,j,nz+1)     = (g5(i,j,nz-1)-0.333333333333333333d0*tmp2) * (1d0-wall_indicator)             + g6(i,j,nz+1)*wall_indicator
-                g13(i-1,j,nz+1) = (g12(i+1,j,nz-1)-0.166666666666666667d0*tmp2 - tnx) * (1d0-wall_indicator) + g13(i-1,j,nz+1)*wall_indicator
-                g14(i+1,j,nz+1) = (g11(i-1,j,nz-1)-0.166666666666666667d0*tmp2 + tnx) * (1d0-wall_indicator) + g14(i+1,j,nz+1)*wall_indicator
-                g17(i,j-1,nz+1) = (g16(i,j+1,nz-1)-0.166666666666666667d0*tmp2 - tny) * (1d0-wall_indicator) + g17(i,j-1,nz+1)*wall_indicator
-                g18(i,j+1,nz+1) = (g15(i,j-1,nz-1)-0.166666666666666667d0*tmp2 + tny) * (1d0-wall_indicator) + g18(i,j+1,nz+1)*wall_indicator
+                g6(i,j,nz+1)     = (g5(i,j,nz-1)-0.333333333333333333d0*tmp2) * (1-wall_indicator)             + g6(i,j,nz+1)*wall_indicator
+                g13(i-1,j,nz+1) = (g12(i+1,j,nz-1)-0.166666666666666667d0*tmp2 - tnx) * (1-wall_indicator) + g13(i-1,j,nz+1)*wall_indicator
+                g14(i+1,j,nz+1) = (g11(i-1,j,nz-1)-0.166666666666666667d0*tmp2 + tnx) * (1-wall_indicator) + g14(i+1,j,nz+1)*wall_indicator
+                g17(i,j-1,nz+1) = (g16(i,j+1,nz-1)-0.166666666666666667d0*tmp2 - tny) * (1-wall_indicator) + g17(i,j-1,nz+1)*wall_indicator
+                g18(i,j+1,nz+1) = (g15(i,j-1,nz-1)-0.166666666666666667d0*tmp2 + tny) * (1-wall_indicator) + g18(i,j+1,nz+1)*wall_indicator
             enddo
         enddo
         !$acc end kernels
@@ -289,19 +289,19 @@ subroutine outlet_Zou_He_pressure_BC_after_odd     !after streaming type BC
 
                 tnx = 0.5d0*( f2(i,j,nz)+f8(i,j,nz)+f10(i,j,nz)-(f1(i,j,nz)+f7(i,j,nz)+f9(i,j,nz)) )
                 tny = 0.5d0*( f4(i,j,nz)+f10(i,j,nz)+f9(i,j,nz)-(f3(i,j,nz)+f7(i,j,nz)+f8(i,j,nz)) )
-                f5(i,j,nz) = (f6(i,j,nz)-0.333333333333333333d0*tmp1)* (1d0-wall_indicator)   + f5(i,j,nz)*wall_indicator
-                f11(i,j,nz) = (f14(i,j,nz)-0.166666666666666667d0*tmp1 + tnx)* (1d0-wall_indicator)   + f11(i,j,nz)*wall_indicator
-                f12(i,j,nz) = (f13(i,j,nz)-0.166666666666666667d0*tmp1 - tnx)* (1d0-wall_indicator)   + f12(i,j,nz)*wall_indicator
-                f15(i,j,nz) = (f18(i,j,nz)-0.166666666666666667d0*tmp1 + tny)* (1d0-wall_indicator)   + f15(i,j,nz)*wall_indicator
-                f16(i,j,nz) = (f17(i,j,nz)-0.166666666666666667d0*tmp1 - tny)* (1d0-wall_indicator)   + f16(i,j,nz)*wall_indicator
+                f5(i,j,nz) = (f6(i,j,nz)-0.333333333333333333d0*tmp1)* (1-wall_indicator)   + f5(i,j,nz)*wall_indicator
+                f11(i,j,nz) = (f14(i,j,nz)-0.166666666666666667d0*tmp1 + tnx)* (1-wall_indicator)   + f11(i,j,nz)*wall_indicator
+                f12(i,j,nz) = (f13(i,j,nz)-0.166666666666666667d0*tmp1 - tnx)* (1-wall_indicator)   + f12(i,j,nz)*wall_indicator
+                f15(i,j,nz) = (f18(i,j,nz)-0.166666666666666667d0*tmp1 + tny)* (1-wall_indicator)   + f15(i,j,nz)*wall_indicator
+                f16(i,j,nz) = (f17(i,j,nz)-0.166666666666666667d0*tmp1 - tny)* (1-wall_indicator)   + f16(i,j,nz)*wall_indicator
 
                 tnx = 0.5d0*( g2(i,j,nz)+g8(i,j,nz)+g10(i,j,nz)-(g1(i,j,nz)+g7(i,j,nz)+g9(i,j,nz)) )
                 tny = 0.5d0*( g4(i,j,nz)+g10(i,j,nz)+g9(i,j,nz)-(g3(i,j,nz)+g7(i,j,nz)+g8(i,j,nz)) )
-                g5(i,j,nz) = (g6(i,j,nz)-0.333333333333333333d0*tmp2)* (1d0-wall_indicator)   + g5(i,j,nz)*wall_indicator
-                g11(i,j,nz) = (g14(i,j,nz)-0.166666666666666667d0*tmp2 + tnx)* (1d0-wall_indicator)   + g11(i,j,nz)*wall_indicator
-                g12(i,j,nz) = (g13(i,j,nz)-0.166666666666666667d0*tmp2 - tnx)* (1d0-wall_indicator)   + g12(i,j,nz)*wall_indicator
-                g15(i,j,nz) = (g18(i,j,nz)-0.166666666666666667d0*tmp2 + tny)* (1d0-wall_indicator)   + g15(i,j,nz)*wall_indicator
-                g16(i,j,nz) = (g17(i,j,nz)-0.166666666666666667d0*tmp2 - tny)* (1d0-wall_indicator)   + g16(i,j,nz)*wall_indicator
+                g5(i,j,nz) = (g6(i,j,nz)-0.333333333333333333d0*tmp2)* (1-wall_indicator)   + g5(i,j,nz)*wall_indicator
+                g11(i,j,nz) = (g14(i,j,nz)-0.166666666666666667d0*tmp2 + tnx)* (1-wall_indicator)   + g11(i,j,nz)*wall_indicator
+                g12(i,j,nz) = (g13(i,j,nz)-0.166666666666666667d0*tmp2 - tnx)* (1-wall_indicator)   + g12(i,j,nz)*wall_indicator
+                g15(i,j,nz) = (g18(i,j,nz)-0.166666666666666667d0*tmp2 + tny)* (1-wall_indicator)   + g15(i,j,nz)*wall_indicator
+                g16(i,j,nz) = (g17(i,j,nz)-0.166666666666666667d0*tmp2 - tny)* (1-wall_indicator)   + g16(i,j,nz)*wall_indicator
             enddo
         enddo
         !$acc end kernels
