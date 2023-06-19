@@ -304,6 +304,7 @@ subroutine get_inlet_flowrate
 
     CALL MPI_REDUCE(flowrate_local,flowrate,1, MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_VGRID, ierr)
     CALL MPI_Bcast(flowrate, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_VGRID, ierr)
+    uin_avg = flowrate/ A_xy
 
     return
 end subroutine get_inlet_flowrate
