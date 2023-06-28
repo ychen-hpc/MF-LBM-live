@@ -400,15 +400,15 @@ subroutine main_iteration_kernel
             if(inlet_BC==1)then
                 call inlet_bounce_back_velocity_BC_before_odd   !velocity inlet bc
             elseif(inlet_BC==2)then
-                !call inlet_Zou_He_pressure_BC_before_odd   !pressure inlet bc
-                call inlet_Guo_pressure_BC_before_odd
+                call inlet_Zou_He_pressure_BC_before_odd   !pressure inlet bc
+                !call inlet_Guo_pressure_BC_before_odd
             endif
             if(outlet_BC==1)then
               call get_inlet_flowrate
               call outlet_convective_BC_before_odd   !convective outlet bc
             elseif(outlet_BC==2)then
-                !call outlet_Zou_He_pressure_BC_before_odd   !pressure outlet bc
-                call outlet_Guo_pressure_BC_before_odd
+                call outlet_Zou_He_pressure_BC_before_odd   !pressure outlet bc
+                !call outlet_Guo_pressure_BC_before_odd
             endif
         endif
         if(porous_plate_cmd/=0)then      !place a porous plate       
@@ -466,15 +466,15 @@ subroutine main_iteration_kernel
             if(inlet_BC==1)then
                 call inlet_bounce_back_velocity_BC_after_odd   !velocity inlet bc
             elseif(inlet_BC==2)then
-                !call inlet_Zou_He_pressure_BC_after_odd   !pressure inlet bc
-                call inlet_Guo_pressure_BC_after_odd
+                call inlet_Zou_He_pressure_BC_after_odd   !pressure inlet bc
+                !call inlet_Guo_pressure_BC_after_odd
             endif
             if(outlet_BC==1)then
                 call get_inlet_flowrate
                 call outlet_convective_BC_after_odd   !convective outlet bc
             elseif(outlet_BC==2)then
-                !call outlet_Zou_He_pressure_BC_after_odd   !pressure outlet bc
-                call outlet_Guo_pressure_BC_after_odd
+                call outlet_Zou_He_pressure_BC_after_odd   !pressure outlet bc
+                !call outlet_Guo_pressure_BC_after_odd
             endif
         endif
         if(porous_plate_cmd/=0)then      !place a porous plate           
