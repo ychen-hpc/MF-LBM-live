@@ -681,7 +681,7 @@ subroutine save_macro(nt)
     integer :: i,j,k, nt
     character (len=30) :: flnm  !file name
     
-    call compute_macro_vars
+    !call compute_macro_vars
 
     !$acc update host(u,v,w,phi,rho)
 
@@ -853,7 +853,7 @@ subroutine VTK_legacy_writer_3D(nt, vtk_type)
             allocate(dd(l1:l2,m1:m2,n1:n2),ff(l1:l2,m1:m2,n1:n2),utt(l1:l2,m1:m2,n1:n2),vtt(l1:l2,m1:m2,n1:n2),wtt(l1:l2,m1:m2,n1:n2))
         endif
         if(vtk_type == 1)then            
-            call compute_macro_vars
+            !call compute_macro_vars
             !$acc update host(u,v,w,phi,rho)
             call AllGather(u(1:nx,1:ny,1:nz),i1,i2,j1,j2,k1,k2,rg,utt,l1,l2,m1,m2,n1,n2,rf)
             call AllGather(v(1:nx,1:ny,1:nz),i1,i2,j1,j2,k1,k2,rg,vtt,l1,l2,m1,m2,n1,n2,rf)

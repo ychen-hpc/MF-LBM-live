@@ -24,7 +24,7 @@ subroutine monitor
     temp = 0d0
     umax = 0d0
 
-    call compute_macro_vars
+    !call compute_macro_vars
 
     usq1 = 0d0   !kinetic energy of each phase
     usq2 = 0d0
@@ -329,7 +329,7 @@ subroutine monitor_multiphase_steady_phasefield
     umax = 0d0
     d_phi_max = 0d0
 
-    call compute_macro_vars
+   !call compute_macro_vars
 
     !$omp parallel do private(i,j,tmp1,tmp2,wall_indicator) reduction(max:umax,d_phi_max)
     !$acc kernels present(u,v,w,walls,phi)
@@ -407,7 +407,7 @@ subroutine monitor_multiphase_steady_capillarypressure
     integer(kind=1) :: wall_indicator
     real(kind=8) :: umax, temp, pre_w, pre_nw, pre_w_sum, pre_nw_sum, pc
 
-    call compute_macro_vars
+   !call compute_macro_vars
 
     !$omp parallel do private(i,j,temp,wall_indicator) reduction(max:umax)
     !$acc kernels present(u,v,w,walls)

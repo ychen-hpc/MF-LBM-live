@@ -312,4 +312,129 @@ end subroutine outlet_Zou_He_pressure_BC_after_odd
 
 
 
+!=======================================================================================================================================================================================================================
+!---------------------- Guo type pressure open outlet boundary conditions ----------------------
+!=======================================================================================================================================================================================================================
+!************************** before odd step kernel *****************************************
+subroutine outlet_Guo_pressure_BC_before_odd    !before streaming type BC
+  use Misc_module
+  use Fluid_singlephase
+  use Fluid_multiphase
+  use mpi_variable
+  IMPLICIT NONE
+  integer :: i,j,k
+  integer(kind=1) :: wall_indicator
+  real(kind=8) :: tmp1,tmp2,tmpRho1, tmpRho2, tmpVel
+
+  if(idz==npz-1)then
+      !$omp parallel
+      !$omp parallel do private(tmp1,tmp2,tmpVel,i, tmpRho1, tmpRho2)
+      !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
+      !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w,rho,&
+      !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,phi,walls)
+      !$acc loop collapse(2) device_type(NVIDIA)
+      do j=1,ny
+          do i=1,nx
+              if(walls(i,j,nz) == 0)then
+                  phi(i,j,nz+1) = 2.0d0 * phi(i,j,nz) - phi(i,j,nz-1)
+                  phi(i,j,nz+2) =  phi(i,j,nz+1)
+                  phi(i,j,nz+3) =  phi(i,j,nz+1)
+                  phi(i,j,nz+4) =  phi(i,j,nz+1)   !overlap_phi=4
+
+
+                  tmpRho1 = rho_out*0.5d0*(1d0+phi(i,j,nz))    
+                  tmpRho2 = rho_out - tmpRho1                   
+                  tmp1 = rho(i,j,nz-1)*0.5d0*(1d0+phi(i,j,nz-1))
+                  tmp2 = rho(i,j,nz-1) - tmp1
+
+                  tmpVel = 1.0d0 - 3.0d0 * w(i,j,nz-1) + 4.5d0 * w(i,j,nz-1) * w(i,j,nz-1) - 1.5d0 * (w(i,j,nz-1) * w(i,j,nz-1))          
+                  f6(i,j,nz+1)     = (f5(i,j,nz-1) + (tmprho1 - tmp1)* w_equ_1 * tmpVel) 
+                  g6(i,j,nz+1)     = (g5(i,j,nz-1) + (tmprho2 - tmp2)* w_equ_1 * tmpVel) 
+
+                  tmpVel = 1.0d0 + 3.0d0 * (u(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (u(i,j,nz-1)-w(i,j,nz-1)) * (u(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (u(i,j,nz-1)*u(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))          
+                  f13(i-1,j,nz+1) = (f12(i+1,j,nz-1) + (tmprho1 - tmp1)* w_equ_2 * tmpVel) 
+                  g13(i-1,j,nz+1) = (g12(i+1,j,nz-1) + (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+
+                  tmpVel = 1.0d0 + 3.0d0 * (-u(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (-u(i,j,nz-1)-w(i,j,nz-1)) * (-u(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (u(i,j,nz-1)*u(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))          
+                  f14(i+1,j,nz+1) = (f11(i-1,j,nz-1)  + (tmprho1 - tmp1)* w_equ_2 * tmpVel) 
+                  g14(i+1,j,nz+1) = (g11(i-1,j,nz-1)  + (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+
+
+                  tmpVel = 1.0d0 + 3.0d0 * (v(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (v(i,j,nz-1)-w(i,j,nz-1)) * (v(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (v(i,j,nz-1)*v(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))          
+                  f17(i,j-1,nz+1) = (f16(i,j+1,nz-1) + (tmprho1 - tmp1)* w_equ_2 * tmpVel) 
+                  g17(i,j-1,nz+1) = (g16(i,j+1,nz-1) + (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+
+                  tmpVel = 1.0d0 + 3.0d0 * (-v(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (-v(i,j,nz-1)-w(i,j,nz-1)) * (-v(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (v(i,j,nz-1)*v(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))     
+                  f18(i,j+1,nz+1) = (f15(i,j-1,nz-1)+ (tmprho1 - tmp1)* w_equ_2 * tmpVel) 
+                  g18(i,j+1,nz+1) = (g15(i,j-1,nz-1)+ (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+              endif
+          enddo
+      enddo
+      !$acc end kernels
+      !$omp end parallel        
+  endif
+
+  return
+end subroutine outlet_Guo_pressure_BC_before_odd
+
+!************************** after odd step kernel *****************************************
+subroutine outlet_Guo_pressure_BC_after_odd    !after streaming type BC
+  use Misc_module
+  use Fluid_singlephase
+  use Fluid_multiphase
+  use mpi_variable
+  IMPLICIT NONE
+  integer :: i,j,k
+  integer(kind=1) :: wall_indicator
+  real(kind=8) :: tmp1,tmp2,tmpRho1, tmpRho2, tmpVel
+
+  if(idz==npz-1)then
+      !$omp parallel
+      !$omp parallel do private(tmp1,tmp2,tmpVel,i, tmpRho1, tmpRho2)
+      !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
+      !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w,rho,&
+      !$acc &g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,phi,walls)
+      !$acc loop collapse(2) device_type(NVIDIA)
+      do j=1,ny
+          do i=1,nx
+              if(walls(i,j,nz) == 0)then
+                  phi(i,j,nz+1) = 2.0d0 * phi(i,j,nz) - phi(i,j,nz-1)
+                  phi(i,j,nz+2) =  phi(i,j,nz+1)
+                  phi(i,j,nz+3) =  phi(i,j,nz+1)
+                  phi(i,j,nz+4) = phi(i,j,nz+1)  !overlap_phi=4
+
+                  tmpRho1 = rho_out*0.5d0*(1d0+phi(i,j,nz))    
+                  tmpRho2 = rho_out - tmpRho1                   
+                  tmp1 = rho(i,j,nz-1)*0.5d0*(1d0+phi(i,j,nz-1))
+                  tmp2 = rho(i,j,nz-1) - tmp1
+
+                  tmpVel = 1.0d0 - 3.0d0 * w(i,j,nz-1) + 4.5d0 * w(i,j,nz-1) * w(i,j,nz-1) - 1.5d0 * (w(i,j,nz-1) * w(i,j,nz-1))          
+                  f5(i,j,nz)     = (f5(i,j,nz) + (tmprho1 - tmp1)* w_equ_1 * tmpVel) 
+                  g5(i,j,nz)     = (g5(i,j,nz) + (tmprho2 - tmp2)* w_equ_1 * tmpVel) 
+                
+                  tmpVel = 1.0d0 + 3.0d0 * (u(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (u(i,j,nz-1)-w(i,j,nz-1)) * (u(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (u(i,j,nz-1)*u(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))          
+                  f11(i,j,nz) = (f13(i,j,nz) + (tmprho1 - tmp1)* w_equ_2 * tmpVel) 
+                  g11(i,j,nz) = (g13(i,j,nz) + (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+              
+                  tmpVel = 1.0d0 + 3.0d0 * (-u(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (-u(i,j,nz-1)-w(i,j,nz-1)) * (-u(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (u(i,j,nz-1)*u(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))          
+                  f12(i,j,nz) = (f13(i,j,nz)  + (tmprho1 - tmp1)* w_equ_2 * tmpVel) 
+                  g12(i,j,nz) = (g13(i,j,nz)  + (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+          
+                  tmpVel = 1.0d0 + 3.0d0 * (v(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (v(i,j,nz-1)-w(i,j,nz-1)) * (v(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (v(i,j,nz-1)*v(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))          
+                  f15(i,j,nz) = (f18(i,j,nz) + (tmprho1 - tmp1)* w_equ_2 * tmpVel) 
+                  g15(i,j,nz) = (g18(i,j,nz) + (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+
+                  tmpVel = 1.0d0 + 3.0d0 * (-v(i,j,nz-1)-w(i,j,nz-1)) + 4.5d0 * (-v(i,j,nz-1)-w(i,j,nz-1)) * (-v(i,j,nz-1)-w(i,j,nz-1)) - 1.5d0 * (v(i,j,nz-1)*v(i,j,nz-1)+w(i,j,nz-1) * w(i,j,nz-1))     
+                  f16(i,j,nz) = (f17(i,j,nz)+ (tmprho1 - tmp1)* w_equ_2 * tmpVel)
+                  g16(i,j,nz) = (g17(i,j,nz)+ (tmprho2 - tmp2)* w_equ_2 * tmpVel) 
+              endif
+          enddo
+      enddo
+      !$acc end kernels
+      !$omp end parallel        
+  endif
+
+  return
+end subroutine outlet_Guo_pressure_BC_after_odd
+
 

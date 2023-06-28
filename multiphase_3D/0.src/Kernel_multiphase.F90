@@ -22,7 +22,7 @@ subroutine kernel_odd_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
     !$OMP PARALLEL DO default(none) &
     !$OMP & SHARED(&
     !$OMP & walls,f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18, &
-    !$OMP & g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,phi,u,v,w&
+    !$OMP & g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,phi,u,v,w,rho,&
     !$OMP & cn_x,cn_y,cn_z,gamma,la_nui1,la_nui2,beta,ixmin,ixmax,iymin,iymax,izmin,izmax,curv,c_norm,force_Z) &
     !$OMP & PRIVATE(&
     !$OMP & i,j,omega,s_e,s_e2,s_q,s_nu,s_pi,s_t,&
@@ -33,7 +33,7 @@ subroutine kernel_odd_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
     !$OMP & sum1, sum2, sum3, sum4, sum5, sum6, sum7, sum8, sum9,fx,fy,fz, &
     !$OMP & m_rho, m_e, m_e2, m_jx, m_qx, m_jy, m_qy, m_jz, m_qz, m_3pxx, m_3pixx, m_pww, m_piww, m_pxy, m_pyz, m_pzx, m_tx, m_ty, m_tz) collapse(2)
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
-    !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w,&
+    !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w,rho,&
     !$acc & g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,phi,walls,c_norm,cn_x,cn_y,cn_z,curv)async(async_label)
     !$acc loop collapse(3) device_type(NVIDIA)
     do k=izmin,izmax
@@ -165,6 +165,8 @@ subroutine kernel_odd_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
                   u(i,j,k) = ux1
                   v(i,j,k) = uy1
                   w(i,j,k) = uz1
+                  rho(i,j,k) = den
+
 
                   !PDFs summations for computation efficiency purpose
                   sum1 = ft1 + ft2 + ft3 + ft4 + ft5 + ft6
@@ -389,7 +391,7 @@ subroutine kernel_even_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openmp
     !$OMP PARALLEL DO default(none) &
     !$OMP & SHARED(&
-    !$OMP & walls,f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w, &
+    !$OMP & walls,f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w, rho,&
     !$OMP & g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,phi,&
     !$OMP & cn_x,cn_y,cn_z,gamma,la_nui1,la_nui2,beta,ixmin,ixmax,iymin,iymax,izmin,izmax,curv,c_norm,force_Z) &
     !$OMP & PRIVATE(&
@@ -401,7 +403,7 @@ subroutine kernel_even_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
     !$OMP & sum1, sum2, sum3, sum4, sum5, sum6, sum7, sum8, sum9,fx,fy,fz,&
     !$OMP & m_rho, m_e, m_e2, m_jx, m_qx, m_jy, m_qy, m_jz, m_qz, m_3pxx, m_3pixx, m_pww, m_piww, m_pxy, m_pyz, m_pzx, m_tx, m_ty, m_tz) collapse(2)
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_openacc
-    !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w,&
+    !$acc kernels present(f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,u,v,w,rho,&
     !$acc & g0,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12,g13,g14,g15,g16,g17,g18,phi,walls,c_norm,cn_x,cn_y,cn_z,curv)async(async_label)
     !$acc loop collapse(3) device_type(NVIDIA)
     do k=izmin,izmax
@@ -532,6 +534,7 @@ subroutine kernel_even_color(ixmin,ixmax,iymin,iymax,izmin,izmax,async_label)
                   u(i,j,k) = ux1
                   v(i,j,k) = uy1
                   w(i,j,k) = uz1
+                  rho(i,j,k) = den
 
                   !PDFs summations for computation efficiency purpose
                   sum1 = ft1 + ft2 + ft3 + ft4 + ft5 + ft6
